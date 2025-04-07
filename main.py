@@ -1,8 +1,8 @@
+
 from fastapi import FastAPI
 from app.api import vendor
-from app.services.database import Base, engine
-from app.models.vendor_context import VendorContext
-import app.api.context as context
+from app.api import context
+from app.database import Base, engine
 
 app = FastAPI()
 
