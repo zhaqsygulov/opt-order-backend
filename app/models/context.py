@@ -1,10 +1,7 @@
+from pydantic import BaseModel
+from app.models.vendor_context import VendorContext 
 
-from sqlalchemy import Column, String
-from app.database import Base
-
-class VendorContext(Base):
-    __tablename__ = "vendor_context"
-    context_id = Column(String, primary_key=True, index=True)
-    employee_id = Column(String)
-    organization_id = Column(String)
-    account_id = Column(String)
+class GetEmployeeContextResponse(BaseModel):
+    employeeId: str
+    employeeName: str
+    employeeEmail: str | None = None
