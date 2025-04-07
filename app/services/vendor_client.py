@@ -1,13 +1,10 @@
-import httpx
-from app.models.context import GetEmployeeContextResponse
 
-BASE_URL = "https://apps-api.moysklad.ru/api/vendor/1.0"
+from app.models.context import VendorContext
 
-async def get_employee_context(auth: str, context_id: str) -> GetEmployeeContextResponse:
-    headers = {
-        "Authorization": auth
+async def get_employee_context(context_id: str, token: str):
+    # Здесь будет обращение к VendorAPI
+    return {
+        "employee": {"meta": {"href": "employee_href"}},
+        "organization": {"meta": {"href": "organization_href"}},
+        "accountId": "account_id"
     }
-    async with httpx.AsyncClient() as client:
-        response = await client.post(f"{BASE_URL}/context/{context_id}", headers=headers)
-        response.raise_for_status()
-        return GetEmployeeContextResponse(**response.json())
