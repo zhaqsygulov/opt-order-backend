@@ -1,82 +1,59 @@
-
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-<<<<<<< HEAD
-from sqlalchemy import select, insert, update
+from sqlalchemy.future import select
+
 from app.database import get_session
-from app.models import VendorContext, VendorLog
-from app.schemas import VendorRequest
-import httpx
+from app.models.vendor import VendorContext
+from app.schemas.vendor import VendorActivationRequest
 import uuid
-import datetime
-=======
-from app.db.session import get_session
-from app.models.activation import ActivationRequest
-from app.services.vendor_service import VendorService
->>>>>>> 2471c671acc97bee57ece8428312d313b663d9cd
 
 router = APIRouter()
 
 @router.put("/vendor/apps/{app_id}/{account_id}")
-async def activate_app(app_id: str, account_id: str, body: VendorRequest, session: AsyncSession = Depends(get_session)):
-    token = body.access[0].access_token
-    context = {
-        "account_id": body.accountId,
-        "access_token": token,
-        "context_id": body.contextId,
-        "employee_id": body.employeeId,
-        "org_id": body.orgId
-    }
-
-    stmt = select(VendorContext).where(VendorContext.account_id == body.accountId)
-    result = await session.execute(stmt)
-    existing = result.scalar_one_or_none()
-
-    if existing:
-        await session.execute(
-            update(VendorContext)
-            .where(VendorContext.account_id == body.accountId)
-            .values(**context)
-        )
-        action = "updated"
-    else:
-        new = VendorContext(id=str(uuid.uuid4()), **context)
-        session.add(new)
-        action = "created"
-
-    log = VendorLog(
-        id=str(uuid.uuid4()),
-        account_id=body.accountId,
-        action=action,
-        created_at=datetime.datetime.utcnow()
-    )
-    session.add(log)
-
-    # Token check
+async def activate_app(
+    app_id: str,
+    account_id: str,
+    data: VendorActivationRequest,
+    session: AsyncSession = Depends(get_session)
+):
+    # Валидация UUID
     try:
-        async with httpx.AsyncClient() as client:
-            r = await client.get(
-                "https://api.moysklad.ru/api/remap/1.2/entity/product",
-                headers={"Authorization": f"Bearer {token}"}
-            )
-        r.raise_for_status()
-    except Exception:
-        error_log = VendorLog(
-            id=str(uuid.uuid4()),
-            account_id=body.accountId,
-            action="token_check_failed",
-            created_at=datetime.datetime.utcnow()
+        uuid.UUID(account_id)
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Invalid account ID format. Must be UUID.")
+
+    # Получение access_token
+    access_token = None
+    for item in data.access:
+        if item.resource.startswith("https://api.moysklad.ru"):
+            access_token = item.access_token
+            break
+
+    if access_token is None:
+        raise HTTPException(status_code=400, detail="Access token not found for MoySklad API")
+
+    # Проверяем, существует ли уже запись
+    result = await session.execute(
+        select(VendorContext).where(VendorContext.account_id == account_id)
+    )
+    existing_context = result.scalar_one_or_none()
+
+    if existing_context:
+        # Обновляем
+        existing_context.access_token = access_token
+        existing_context.context_id = data.contextId
+        existing_context.employee_id = data.employeeId
+        existing_context.org_id = data.orgId
+    else:
+        # Создаем новую
+        new_context = VendorContext(
+            account_id=account_id,
+            access_token=access_token,
+            context_id=data.contextId,
+            employee_id=data.employeeId,
+            org_id=data.orgId
         )
-        session.add(error_log)
+        session.add(new_context)
 
     await session.commit()
-    return {"status": "ok", "action": action}
-
-@router.get("/vendor/{account_id}")
-async def get_vendor_context(account_id: str, session: AsyncSession = Depends(get_session)):
-    stmt = select(VendorContext).where(VendorContext.account_id == account_id)
-    result = await session.execute(stmt)
-    data = result.scalar_one_or_none()
-    if not data:
-        raise HTTPException(status_code=404, detail="Account not found")
-    return data
+    return {"status": "ok"}
