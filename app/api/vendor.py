@@ -1,6 +1,7 @@
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+<<<<<<< HEAD
 from sqlalchemy import select, insert, update
 from app.database import get_session
 from app.models import VendorContext, VendorLog
@@ -8,6 +9,11 @@ from app.schemas import VendorRequest
 import httpx
 import uuid
 import datetime
+=======
+from app.db.session import get_session
+from app.models.activation import ActivationRequest
+from app.services.vendor_service import VendorService
+>>>>>>> 2471c671acc97bee57ece8428312d313b663d9cd
 
 router = APIRouter()
 
