@@ -1,10 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-<<<<<<< HEAD
 from app.schemas.vendor import VendorActivationRequest
 from app.models.vendor import VendorContext
 from app.database import get_session
-=======
 from sqlalchemy.future import select
 
 from app.database import get_session
@@ -15,11 +13,9 @@ import uuid
 router = APIRouter()
 
 @router.put("/vendor/apps/{app_id}/{account_id}")
-<<<<<<< HEAD
 async def activate_vendor_app(app_id: str, account_id: str, payload: VendorActivationRequest, session: AsyncSession = Depends(get_session)):
     # Dummy implementation
     return {"message": "App activated", "app_id": app_id, "account_id": account_id}
-=======
 async def activate_app(
     app_id: str,
     account_id: str,
