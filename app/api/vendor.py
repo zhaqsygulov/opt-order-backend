@@ -11,7 +11,6 @@ from app.database import get_session
 from app.models import VendorContext
 from app.schemas.vendor import VendorActivationRequest
 import uuid
->>>>>>> 183e5e4318467748a1eae5d4055570d3ec9d8308
 
 router = APIRouter()
 
@@ -68,4 +67,3 @@ async def activate_app(
 
     await session.commit()
     return {"status": "ok"}
->>>>>>> 183e5e4318467748a1eae5d4055570d3ec9d8308
