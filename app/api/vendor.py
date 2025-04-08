@@ -6,7 +6,7 @@ from app.database import get_session
 from sqlalchemy.future import select
 
 from app.database import get_session
-from app.models import VendorContext
+from app.models.models import VendorContext
 from app.schemas.vendor import VendorActivationRequest
 import uuid
 
