@@ -3,7 +3,7 @@ from app.api import vendor, context, products, order
 
 app = FastAPI(
     title="Opt Order Backend",
-    version="0.4.0"
+    version="0.5.0"
 )
 
 app.include_router(vendor.router)
