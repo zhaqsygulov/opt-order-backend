@@ -1,8 +1,0 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-asyncpg
-httpx
-python-multipart
-sqlalchemy
-asyncpg
