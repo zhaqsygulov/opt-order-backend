@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.schemas.vendor import VendorActivationRequest
-from app.models.vendor import VendorContextёfrom fastapi import Request
+from app.models.vendor import VendorContext
+from fastapi import Request
 from fastapi.responses import JSONResponse
 from fastapi import HTTPException
 from sqlalchemy.future import select
